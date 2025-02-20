@@ -57,3 +57,16 @@ In a first version we'll
 - Add a flag `exclude` to specify which changes you want to keep.
 
 ## Implementation
+
+Do it in small steps:
+
+- [x] Generate readable docs
+- [x] Understand the overall architecture
+- [ ] Fetch current db state (see sqitch status)
+- [ ] Add tests
+- [ ] Update docs
+- [ ] Remove change files
+- [ ] Remove plan entry
+- [ ] Add options similar to `sqitch status`
+- [ ] Add ConnectingCommand role
+- [ ] Add ContextCommand role

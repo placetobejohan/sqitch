@@ -1,0 +1,10 @@
+=head1 Name
+
+sqitch-clean-usage - Sqitch clean usage statement
+
+=head1 Usage
+
+  sqitch clean [options] [<database>]
+
+=head1 Options
+

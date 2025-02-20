@@ -1,0 +1,19 @@
+=head1 NAME
+
+sqitch-clean - Remove undeployed changes
+
+=head1 SYNOPSIS
+
+  sqitch clean
+
+=head1 DESCRIPTION
+
+The C<sqitch clean> command removes any undeployed changes from the project.
+
+=head1 OPTIONS
+
+None.
+
+=head1 Sqitch
+
+Part of the L<sqitch> suite.
