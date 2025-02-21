@@ -1,0 +1,49 @@
+LS: log_file = ~
+LS: perl = do {
+  my $a = {
+    cacheDir               => undef,
+    containerArgs          => undef,
+    containerCmd           => undef,
+    containerMode          => "exec",
+    containerName          => undef,
+    debugAdapterPort       => 13603,
+    debugAdapterPortRange  => 100,
+    disableCache           => bless(do{\(my $o = 0)}, "JSON::PP::Boolean"),
+    disablePassEnv         => undef,
+    enable                 => bless(do{\(my $o = 1)}, "JSON::PP::Boolean"),
+    env                    => undef,
+    fileFilter             => undef,
+    ignoreDirs             => undef,
+    logFile                => "~",
+    logLevel               => 0,
+    pathMap                => undef,
+    perlCmd                => undef,
+    perlInc                => undef,
+    showLocalVars          => 'fix',
+    sshAddr                => undef,
+    sshArgs                => undef,
+    sshCmd                 => undef,
+    sshPort                => undef,
+    sshUser                => undef,
+    sshWorkspaceRoot       => undef,
+    useTaintForSyntaxCheck => 'fix',
+  };
+  $a->{showLocalVars} = \${$a->{disableCache}};
+  $a->{useTaintForSyntaxCheck} = \${$a->{disableCache}};
+  $a;
+}
+LS: log_level = 0
+LS: path_map = undef
+LS: perlinc = undef
+LS: use_taint_for_syntax_check = bless(do{\(my $o = 0)}, "JSON::PP::Boolean")
+LS: file_filter_regex = "(?:\\.pm|\\.pl)\$"
+LS: ignore_dir = { ".git" => 1, ".svn" => 1, ".vscode" => 1 }
+LS: background_parser quit
+LS: background_parser folders = {
+  "file:///home/johan-maes/source/forks/sqitch" => "/home/johan-maes/source/forks/sqitch",
+}
+LS: loaded 100 files, parsed  files, 100 files
+LS: loaded 199 files, parsed 1 files, 200 files
+LS: initial parsing done, loaded 248 files, parsed 1 files, 249 files
+LS: ERROR: Unknown perlmethod _rpcnot_setTraceNotification at /usr/local/share/perl/5.38.2/Perl/LanguageServer.pm line 224.
+
