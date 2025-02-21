@@ -147,6 +147,7 @@ sub execute {
     $self->emit_tags;
 
     my $plan_proj = try { $target->plan->project };
+    # Not sure the second check makes sense since both variables reference the same value
     if (defined $plan_proj && $self->project eq $plan_proj ) {
         $self->emit_status($state);
     } else {

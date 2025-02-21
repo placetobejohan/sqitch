@@ -87,17 +87,51 @@ sub execute {
         message => __ 'Nothing to clean: plan is empty',
     } unless $plan->count;
 
+    # Check if the project is registered in the db?
+
     # Fetch state
     my $state = $engine->current_state( $self->project );
+    
+    # If the state is empty all changes can be removed, set index to -1
+    my $current_index = !defined $state 
+        ? -1 
+        : $plan->index_of( $state->{change_id} ) // do {
+            $self->vent(__x(
+                'Cannot find the current change in {file}.',
+                file => $self->plan_file
+            ));
+            hurl clean => __ 'Make sure you are connected to the proper '
+                        . 'database for this project.';
+        };
 
-    # Watch out! If nothing is deployed $state is undefined (and all changes can be removed)
-    # Updating the plan and removing the files should be an atomic operation so we don't end up in an inconsistent state
+    print "Plan index: $current_index\n";
 
     # 1. Check if there are changes to clean
-    # 2. Update the plan
-    # 3. Remove the files
+    # All changes in the plan with an index greater than the current one can be removed
+    if($current_index == $plan->count - 1) {
+        $self->info(__ 'No changes to clean.');
+        return;
+    } else {
+        my $removal_count = $plan->count - ($current_index + 1);
+        $self->info(__n(
+            "Change to be removed: $removal_count",
+            "Changes to be removed: $removal_count",
+            $removal_count
+        ));
+    }
 
-    
+    # 2. Update the plan
+    # write_to seems like the way to go, let's try that
+    print "Last change: ";
+    print $state->{change} . "\n";
+
+    # Change doesn't work with reworked changes, use id instead
+    $plan->write_to( $self->plan_file, undef, $state->{change_id});
+
+    # 3. Remove the files
+    # While updating the plan can be done in a single operation, removing the files probably can't
+    # It might be tricky to do this atomically
+    # But let's first try to remove the files for one change
 }
 
 1;

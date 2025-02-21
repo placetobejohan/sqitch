@@ -63,8 +63,8 @@ Do it in small steps:
 - [x] Generate readable docs
 - [x] Understand the overall architecture
 - [x] Connect to db (target)
-- [ ] Exit if there are no changes in the plan
-- [ ] Fetch current db state (see sqitch status)
+- [x] Exit if there are no changes in the plan
+- [x] Fetch current db state (see sqitch status)
 - [ ] Remove change files
 - [ ] Remove plan entry
 - [ ] Add tests
@@ -72,3 +72,14 @@ Do it in small steps:
 - [ ] Add options similar to `sqitch status`
 - [ ] Add ConnectingCommand role
 - [ ] Add ContextCommand role
+- [ ] Add translations?
+
+### Pointers
+
+- Watch out! If nothing is deployed $state is undefined (and all changes can be removed). There might be a project mismatch between plan and db but we don't take that into account for now.
+- Updating the plan and removing the files should be an atomic operation so we don't end up in an inconsistent state
+- Only remove a change if
+    - There's a name match in the plan (sqitch status only looks at the index so I assume it's fine if we do the same here)
+    - It's at the end of the plan
+- This probably means we have to handle them one by one?
+- Add translations?
