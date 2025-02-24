@@ -123,26 +123,27 @@ sub execute {
         $removal_count
     ));
 
-    # Remove the drv files for each change
-    # TODO: get expected files from template config
+    # Remove drv scripts for each change
     for my $i ($current_index + 1..$plan->count-1) {
         my $change = $plan->change_at($i);
-        $self->info(__x(
-            'Removing change {change}',
-            change => $change->format_name,
-        ));
-
-        $self->_remove([$change->deploy_file, $change->revert_file, $change->verify_file]);
+        $self->_remove_scripts($change);
     }
 
     # Update the plan
     $plan->write_to( $self->plan_file, undef, $state->{change_id});
 }
 
-# Remove files if they exist
-sub _remove {
-    my ( $self, $files ) = @_;
-    foreach my $file (@$files) {
+# Remove script files if they exist
+# TODO: get script files from template config instead of hardcoding drv
+sub _remove_scripts {
+    my ( $self, $change ) = @_;
+    my @files = ($change->deploy_file, $change->revert_file, $change->verify_file);
+    $self->info(__x(
+        'Removing scripts for change {change}',
+        change => $change->format_name,
+    ));
+
+    foreach my $file (@files) {
         if (-e $file) {
             unlink $file or hurl clean => __x(
                 'Cannot remove {file}: {error}',
