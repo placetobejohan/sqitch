@@ -55,6 +55,8 @@ In a first version we'll
 - Add the command `git reset` as a combination of `git revert` and `git clean`.
 - Add a flag `dry-run` to only show what would be done.
 - Add a flag `exclude` to specify which changes you want to keep.
+- It's possible that we have other files to delete apart from the required deploy, revert, verify files, see templates in https://sqitch.org/docs/manual/sqitch-add/ and function `all_templates` in add.pm
+- Support multiple targets (like in sqitch add)
 
 ## Implementation
 
@@ -65,10 +67,10 @@ Do it in small steps:
 - [x] Connect to db (target)
 - [x] Exit if there are no changes in the plan
 - [x] Fetch current db state (see sqitch status)
-- [ ] Remove change files
-- [ ] Remove plan entry
-- [ ] Add tests
+- [x] Remove change files
+- [x] Remove plan entry
 - [ ] Update docs
+- [ ] Add tests
 - [ ] Add options similar to `sqitch status`
 - [ ] Add ConnectingCommand role
 - [ ] Add ContextCommand role

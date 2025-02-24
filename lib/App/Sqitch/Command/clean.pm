@@ -87,15 +87,15 @@ sub execute {
         message => __ 'Nothing to clean: plan is empty',
     } unless $plan->count;
 
-    # Check if the project is registered in the db?
-
     # Fetch state
     my $state = $engine->current_state( $self->project );
     
     # If the state is empty all changes can be removed, set index to -1
-    my $current_index = !defined $state 
-        ? -1 
-        : $plan->index_of( $state->{change_id} ) // do {
+    my $current_index = -1;
+    if(not defined $state) {
+        $self->info(__ 'No changes deployed.');
+    } else {
+        $current_index = $plan->index_of( $state->{change_id} ) // do {
             $self->vent(__x(
                 'Cannot find the current change in {file}.',
                 file => $self->plan_file
@@ -103,35 +103,59 @@ sub execute {
             hurl clean => __ 'Make sure you are connected to the proper '
                         . 'database for this project.';
         };
-
-    print "Plan index: $current_index\n";
-
-    # 1. Check if there are changes to clean
-    # All changes in the plan with an index greater than the current one can be removed
-    if($current_index == $plan->count - 1) {
-        $self->info(__ 'No changes to clean.');
-        return;
-    } else {
-        my $removal_count = $plan->count - ($current_index + 1);
-        $self->info(__n(
-            "Change to be removed: $removal_count",
-            "Changes to be removed: $removal_count",
-            $removal_count
+        $self->info(__x(
+            'Deployed change: {change}',
+            change => $state->{change},
         ));
     }
 
-    # 2. Update the plan
-    # write_to seems like the way to go, let's try that
-    print "Last change: ";
-    print $state->{change} . "\n";
+    # Check if there are changes to clean
+    # All changes in the plan with an index greater than the current one can be removed
+    my $removal_count = $plan->count - ($current_index + 1);
+    if($removal_count == 0) {
+        $self->info(__ 'No changes to clean.');
+        return;
+    }
 
-    # Change doesn't work with reworked changes, use id instead
+    $self->info(__n(
+        "Change to be removed: $removal_count",
+        "Changes to be removed: $removal_count",
+        $removal_count
+    ));
+
+    # Remove the drv files for each change
+    # TODO: get expected files from template config
+    for my $i ($current_index + 1..$plan->count-1) {
+        my $change = $plan->change_at($i);
+        $self->info(__x(
+            'Removing change {change}',
+            change => $change->format_name,
+        ));
+
+        $self->_remove([$change->deploy_file, $change->revert_file, $change->verify_file]);
+    }
+
+    # Update the plan
     $plan->write_to( $self->plan_file, undef, $state->{change_id});
+}
 
-    # 3. Remove the files
-    # While updating the plan can be done in a single operation, removing the files probably can't
-    # It might be tricky to do this atomically
-    # But let's first try to remove the files for one change
+# Remove files if they exist
+sub _remove {
+    my ( $self, $files ) = @_;
+    foreach my $file (@$files) {
+        if (-e $file) {
+            unlink $file or hurl clean => __x(
+                'Cannot remove {file}: {error}',
+                file  => $file,
+                error => $!,
+            );
+        } else {
+            $self->warn(__x(
+                'Cannot remove {file}: does not exist',
+                file => $file
+            ));
+        }
+    }
 }
 
 1;
