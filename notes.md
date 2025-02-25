@@ -69,8 +69,8 @@ Do it in small steps:
 - [x] Fetch current db state (see sqitch status)
 - [x] Remove change files
 - [x] Remove plan entry
-- [ ] Update docs
 - [ ] Add tests
+- [ ] Add docs for `sqitch clean`
 - [ ] Add options similar to `sqitch status`
 - [ ] Add ConnectingCommand role
 - [ ] Add ContextCommand role

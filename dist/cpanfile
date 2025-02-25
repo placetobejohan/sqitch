@@ -5,6 +5,7 @@ requires "Algorithm::Backoff::Exponential" => "0.006";
 requires "Clone" => "0";
 requires "Config::GitLike" => "1.15";
 requires "DBI" => "1.631";
+requires "Data::Dumper" => "0";
 requires "DateTime" => "1.04";
 requires "DateTime::TimeZone" => "0";
 requires "Devel::StackTrace" => "1.30";
