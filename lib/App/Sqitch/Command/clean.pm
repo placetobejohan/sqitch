@@ -52,6 +52,13 @@ has project => (
     },
 );
 
+sub options {
+    return qw(
+        project=s
+        target|t=s
+    );
+}
+
 sub execute {
     my $self = shift;
 
@@ -175,11 +182,20 @@ If you want to know how to use the C<clean> command, you probably want to be rea
 
 =head1 Interface
 
+=head2 Class Methods
+
+=head3 C<options>
+
+  my @opts = App::Sqitch::Command::clean->options;
+
+Returns a list of L<Getopt::Long> option specifications for the command-line
+options for the C<clean> command.
+
 =head2 Attributes
 
 =head3 C<target_name>
 
-The name or URI of the database target as specified by the C<--target> option.
+The name or URI of the database target as specified by the C<--target> option or the configuration file.
 
 =head3 C<target>
 
@@ -187,7 +203,7 @@ An L<App::Sqitch::Target> object from which to retrieve the current state and pl
 
 =head3 C<project>
 
-The name of the project to clean. Derived from the plan or the registry.
+The name of the project to clean. Derived from the C<--project> option, plan or the registry.
 
 =head2 Instance Methods
 

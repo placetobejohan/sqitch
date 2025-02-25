@@ -69,6 +69,7 @@ Do it in small steps:
 - [x] Fetch current db state (see sqitch status)
 - [x] Remove change files
 - [x] Remove plan entry
+- [x] Add docs for module clean.pm
 - [ ] Add tests
 - [ ] Add docs for `sqitch clean`
 - [ ] Add options similar to `sqitch status`
@@ -76,7 +77,7 @@ Do it in small steps:
 - [ ] Add ContextCommand role
 - [ ] Add translations?
 
-### Pointers
+### Thoughts
 
 - Watch out! If nothing is deployed $state is undefined (and all changes can be removed). There might be a project mismatch between plan and db but we don't take that into account for now.
 - Updating the plan and removing the files should be an atomic operation so we don't end up in an inconsistent state
