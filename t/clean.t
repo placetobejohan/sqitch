@@ -137,13 +137,53 @@ is $clean->target_name, undef, 'Default target should be undef';
 isa_ok $clean = $CLASS->new(
     sqitch      => $sqitch,
     target_name => 'foo',
-), $CLASS, 'new status with target';
+), $CLASS, 'new clean with target';
 is $clean->target_name, 'foo', 'Should have target "foo"';
 
 ##############################################################################
 # Test execute().
-# Warn on multiple targets
+
+# Add project and plan file
+@projs = ('clean');
+my $file = file qw(t plans clean-empty.plan);
+$config->update('core.plan_file' => $file->stringify);
+$sqitch = App::Sqitch->new(config => $config);
+ok $clean = App::Sqitch::Command::clean->new(
+    sqitch  => $sqitch,
+), 'Recreate clean command';
+
 # An empty plan means nothing to clean.
+throws_ok { $clean->execute } 'App::Sqitch::X',
+    'Should get an error for an empty plan';
+is $@->ident, 'clean', 'Empty plan error ident should be "clean"';
+is $@->message, __ 'Nothing to clean: plan is empty',
+    'Empty plan error message should be correct';
+
+# my $dt = App::Sqitch::DateTime->new(
+#     year       => 2012,
+#     month      => 7,
+#     day        => 7,
+#     hour       => 16,
+#     minute     => 12,
+#     second     => 47,
+#     time_zone => 'America/Denver',
+# );
+# my $state = {
+#     project         => 'foo',
+#     change_id       => 'someid',
+#     change          => 'widgets_table',
+#     committer_name  => 'fred',
+#     committer_email => 'fred@example.com',
+#     committed_at    => $dt->clone,
+#     tags            => [],
+#     planner_name    => 'barney',
+#     planner_email   => 'barney@example.com',
+#     planned_at      => $dt->clone->subtract(days => 2),
+# };
+# $engine_mocker->mock( current_state => $state );
+
+
+
 # Cannot find current change in plan
 # No changes to clean
 # No changes deployed: clean everything

@@ -70,7 +70,8 @@ Do it in small steps:
 - [x] Remove change files
 - [x] Remove plan entry
 - [x] Add docs for module clean.pm
-- [ ] Add tests
+- [ ] Add tests for `sqitch clean`(no options)
+- [ ] Add tests for options on `sqitch clean`
 - [ ] Add docs for `sqitch clean`
 - [ ] Add options similar to `sqitch status`
 - [ ] Add ConnectingCommand role
