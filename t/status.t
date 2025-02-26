@@ -245,7 +245,7 @@ is_deeply +MockOutput->get_comment, [
     [__x 'By:       {name} <{email}>', name => 'fred', email => 'fred@example.com' ],
 ], 'The state should have been emitted with a tag';
 
-# Try with mulitple tags.
+# Try with multiple tags.
 $state-> {tags} = ['@alpha', '@beta', '@gamma'];
 ok $status->emit_state($state), 'Emit the state with multiple tags';
 is_deeply +MockOutput->get_comment, [

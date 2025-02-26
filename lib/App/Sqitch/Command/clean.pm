@@ -38,11 +38,11 @@ has project => (
 
             # Try to extract a project name from the registry.
             my $engine = $self->engine;
-            hurl status => __ 'Database not initialized for Sqitch'
+            hurl clean => __ 'Database not initialized for Sqitch'
               unless $engine->initialized;
             my @projs = $engine->registered_projects
-              or hurl status => __ 'No projects registered';
-            hurl status => __x(
+              or hurl clean => __ 'No projects registered';
+            hurl clean => __x(
                 'Use --project to select which project to query: {projects}',
                 projects => join __ ', ',
                 @projs,
