@@ -117,7 +117,7 @@ sub execute {
     # All changes in the plan with an index greater than the current one can be removed
     my $removal_count = $plan->count - ($current_index + 1);
     if($removal_count == 0) {
-        $self->info(__ 'No changes to clean.');
+        $self->info(__ 'Nothing to clean: all changes deployed.');
         return;
     }
 

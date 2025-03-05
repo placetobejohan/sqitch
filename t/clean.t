@@ -13,8 +13,9 @@ use Test::Warn;
 use Test::MockModule;
 use Path::Class;
 use lib 't/lib';
-# use MockOutput;
+#use MockOutput;
 use TestConfig;
+use Capture::Tiny 0.12 ':all';
 
 my $CLASS = 'App::Sqitch::Command::clean';
 require_ok $CLASS;
@@ -143,6 +144,7 @@ is $clean->target_name, 'foo', 'Should have target "foo"';
 ##############################################################################
 # Test execute().
 
+# TEST CASE 1: empty plan
 # Add project 
 @projs = ('clean');
 
@@ -165,6 +167,7 @@ is $@->ident, 'clean', 'Empty plan error ident should be "clean"';
 is $@->message, __ 'Nothing to clean: plan is empty',
     'Empty plan error message should be correct';
 
+# TEST CASE 2: Cannot find current change in plan
 # Set plan file
 my $file = file qw(t plans), "clean-multi.plan";
 my $clean = create_clean_command($file);
@@ -193,16 +196,51 @@ my $state = {
 };
 $engine_mocker->mock( current_state => $state );
 
-# Cannot find current change in plan
 throws_ok { $clean->execute } 'App::Sqitch::X',
     'Should get an error for missing current change';
 is $@->ident, 'clean', 'Missing current change error ident should be "clean"';
 is $@->message, __ 'Make sure you are connected to the proper database for this project.',
     'Missing current change error message should be correct';
 
-# No changes to clean
+# TEST CASE 3: No changes to clean (non-empty plan)
+# Plan file can stay the same (clean-multi.plan)
 
-# Now once again add a change to the state that doesn't exist in the plan.
+# Get current state based on the plan file and the number of undeployed changes
+sub get_current_state {
+    my ($clean, $undeployed_changes) = @_;
+    $undeployed_changes //= 0;
+
+    my $plan = $clean->default_target->plan;
+    my @changes;
+
+    while (my $change = $plan->next) {
+        push @changes, $change;
+    }
+
+    my $last_change_index = @changes - $undeployed_changes - 1;
+    my $last_change = $changes[$last_change_index];
+
+    return {
+        project         => $plan->project,
+        change_id       => $last_change->id,
+        change          => $last_change->name,
+        committer_name  => 'fred',
+        committer_email => 'fred@example.com',
+        committed_at    => App::Sqitch::DateTime->now,
+        tags            => [],
+        planner_name    => $last_change->planner_name,
+        planner_email   => $last_change->planner_email,
+        planned_at      => $last_change->timestamp,
+    };
+}
+
+# Set current state: no undeployed changes
+my $state = get_current_state($clean, 0);
+$engine_mocker->mock(current_state => sub { return $state });
+
+# Execute should return a message saying there are no changes to clean
+my $output = capture_stdout { $clean->execute };
+like($output, qr/Nothing to clean: all changes deployed\.\n/, 'No undeployed changes should print "Nothing to clean: all changes deployed"');
 
 # No changes deployed: clean everything
 # Changes deployed, one change to clean
