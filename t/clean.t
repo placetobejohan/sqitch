@@ -143,14 +143,20 @@ is $clean->target_name, 'foo', 'Should have target "foo"';
 ##############################################################################
 # Test execute().
 
-# Add project and plan file
+# Add project 
 @projs = ('clean');
-my $file = file qw(t plans clean-empty.plan);
-$config->update('core.plan_file' => $file->stringify);
-$sqitch = App::Sqitch->new(config => $config);
-ok $clean = App::Sqitch::Command::clean->new(
-    sqitch  => $sqitch,
-), 'Recreate clean command';
+
+# Set plan file
+sub create_clean_command {
+    my $file = shift;
+    $config->update('core.plan_file' => $file->stringify);
+    my $sqitch = App::Sqitch->new(config => $config);
+    return App::Sqitch::Command::clean->new(
+        sqitch  => $sqitch,
+    );
+}
+my $file = file qw(t plans), "clean-empty.plan";
+my $clean = create_clean_command($file);
 
 # An empty plan means nothing to clean.
 throws_ok { $clean->execute } 'App::Sqitch::X',
@@ -159,33 +165,45 @@ is $@->ident, 'clean', 'Empty plan error ident should be "clean"';
 is $@->message, __ 'Nothing to clean: plan is empty',
     'Empty plan error message should be correct';
 
-# my $dt = App::Sqitch::DateTime->new(
-#     year       => 2012,
-#     month      => 7,
-#     day        => 7,
-#     hour       => 16,
-#     minute     => 12,
-#     second     => 47,
-#     time_zone => 'America/Denver',
-# );
-# my $state = {
-#     project         => 'foo',
-#     change_id       => 'someid',
-#     change          => 'widgets_table',
-#     committer_name  => 'fred',
-#     committer_email => 'fred@example.com',
-#     committed_at    => $dt->clone,
-#     tags            => [],
-#     planner_name    => 'barney',
-#     planner_email   => 'barney@example.com',
-#     planned_at      => $dt->clone->subtract(days => 2),
-# };
-# $engine_mocker->mock( current_state => $state );
+# Set plan file
+my $file = file qw(t plans), "clean-multi.plan";
+my $clean = create_clean_command($file);
 
-
+# Add a change to the state that doesn't exist in the plan.
+my $dt = App::Sqitch::DateTime->new(
+    year       => 2012,
+    month      => 7,
+    day        => 7,
+    hour       => 16,
+    minute     => 12,
+    second     => 47,
+    time_zone => 'America/Denver',
+);
+my $state = {
+    project         => 'clean',
+    change_id       => 'someid',
+    change          => 'widgets_table',
+    committer_name  => 'fred',
+    committer_email => 'fred@example.com',
+    committed_at    => $dt->clone,
+    tags            => [],
+    planner_name    => 'barney',
+    planner_email   => 'barney@example.com',
+    planned_at      => $dt->clone->subtract(days => 2),
+};
+$engine_mocker->mock( current_state => $state );
 
 # Cannot find current change in plan
+throws_ok { $clean->execute } 'App::Sqitch::X',
+    'Should get an error for missing current change';
+is $@->ident, 'clean', 'Missing current change error ident should be "clean"';
+is $@->message, __ 'Make sure you are connected to the proper database for this project.',
+    'Missing current change error message should be correct';
+
 # No changes to clean
+
+# Now once again add a change to the state that doesn't exist in the plan.
+
 # No changes deployed: clean everything
 # Changes deployed, one change to clean
 # Changes deployed, three changes to clean

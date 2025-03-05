@@ -73,6 +73,7 @@ Do it in small steps:
 - [ ] Add tests for `sqitch clean`(no options)
 - [ ] Add tests for options on `sqitch clean`
 - [ ] Add docs for `sqitch clean`
+- [ ] Add tags to test plan (+ update implementation)
 - [ ] Add options similar to `sqitch status`
 - [ ] Add ConnectingCommand role
 - [ ] Add ContextCommand role
